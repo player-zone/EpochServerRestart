@@ -1,0 +1,17 @@
+{
+  "name": "EpochServerRestart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "compile": "node scripts/compile.js"
+  },
+  "author": "Wiktor Zawierucha",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "arma-rcon": "^1.0.1",
+    "pkg": "^4.3.4"
+  }
+}
