@@ -5,6 +5,8 @@ const ServerConnection = require('./ServerConnection');
 
 class StartServer {
     constructor(hours = 3) {
+        // store the amount of hours to restart
+        this.hours = hours;
         // is the server running?
         this.online = false;
         // configuration object, filled from the .env file
@@ -25,7 +27,6 @@ class StartServer {
     
     // initialise the interval
     initInterval() {
-        this.bootServer();
         this.interval = setInterval(this.bootServer.bind(this), this.intervalTime);
         this.initRestartMessages();
     }
@@ -57,14 +58,21 @@ class StartServer {
         // start the server!
         this.startServer();
         
-        // connect to the server, a minute should be safe
-        setTimeout(() => {
-            new ServerConnection({
-                address: this.config.HOST,
-                port: this.config.PORT,
-                password: this.config.PASSWORD
-            });
-        }, 180000)
+        this.connection = new ServerConnection({
+            address: this.config.HOST,
+            port: this.config.PORT,
+            password: this.config.PASSWORD
+        });
+
+        this.connection.retryLogin()
+            .then(() => {
+                // if successfully logged in, initialise the restart server interval
+                this.initInterval();
+                console.log('Successfully logged into the server.');
+            })
+            .catch(() => {
+                console.log('Failed to login to the server. Server will not restart itself. Please check your configuration.');
+            })
     }
     
     /**
@@ -118,7 +126,7 @@ class StartServer {
 
                 this.config[key] = value;
             })
-            .on('close', this.initInterval.bind(this));
+            .on('close', this.bootServer.bind(this));
     }
 
     /**
@@ -133,11 +141,6 @@ class StartServer {
                     reject();
                     return;
                 }
-
-                // Ckear all the timeouts for the messages
-                // todo: put into a separate function
-                // this.messageTimeouts.forEach((timeout) => { clearInterval(timeout) });
-                // this.messageTimeouts = [];
                 
                 // a little timeout before we proceed
                 setTimeout(resolve, 10000);
@@ -162,7 +165,7 @@ class StartServer {
                 return;
             }
 
-            console.log('Server has started.');
+            console.log('Server has started.')
             this.online = true;
         });
     }
@@ -171,11 +174,11 @@ class StartServer {
      * Initialise timeouts for the restart server messages shown on the server to all players
      */
     initRestartMessages() {
-        const template = this.config.KILLSERVER_MESSAGE || 'Warning! This server will restart in {minutes} minutes.';
+        const template = this.config.RESTART_MESSAGE || 'Warning! This server will restart in {minutes} minutes.';
         let timePeriods = [10, 5, 2, 1];
 
-        if (this.config.KILLSERVER_TIMEPERIODS) {
-            const parsed = JSON.parse(this.config.KILLSERVER_TIMEPERIODS);
+        if (this.config.RESTART_TIMEPERIODS) {
+            const parsed = JSON.parse(this.config.RESTART_TIMEPERIODS);
 
             if (parsed && typeof parsed === 'object' && parsed instanceof Array) {
                 timePeriods = parsed;
@@ -190,7 +193,7 @@ class StartServer {
             }
 
             setTimeout(() => {
-                ServerConnection.sendGlobalMessage(template.replace('{message}', time));
+                this.connection.sendGlobalMessage('Say -1 ' + template.replace('{message}', time));
             }, timeout);
         });
     }

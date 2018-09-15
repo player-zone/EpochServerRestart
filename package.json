@@ -9,9 +9,10 @@
   },
   "author": "Wiktor Zawierucha",
   "license": "ISC",
-  "devDependencies": {},
+  "devDependencies": {
+    "arma-rcon": "^1.0.1"
+  },
   "dependencies": {
-    "arma-rcon": "^1.0.1",
     "pkg": "^4.3.4"
   }
 }
