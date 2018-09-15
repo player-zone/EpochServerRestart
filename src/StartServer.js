@@ -26,7 +26,7 @@ class StartServer {
     // initialise the interval
     initInterval() {
         this.bootServer();
-        this.interval = setInterval(this.bootServer, this.intervalTime);
+        this.interval = setInterval(this.bootServer.bind(this), this.intervalTime);
         this.initRestartMessages();
     }
 
@@ -50,13 +50,13 @@ class StartServer {
             console.log('Killing Arma 2 server...');
             await this.killServer();
         }
-
+        
         // run pre-boot scripts
         await this.preBootScripts();
         
         // start the server!
         this.startServer();
-
+        
         // connect to the server, a minute should be safe
         setTimeout(() => {
             new ServerConnection({
@@ -64,9 +64,9 @@ class StartServer {
                 port: this.config.PORT,
                 password: this.config.PASSWORD
             });
-        }, 60000)
+        }, 180000)
     }
-
+    
     /**
      * Runs custom scripts before booting the server up
      * @returns {Promise}
@@ -136,8 +136,8 @@ class StartServer {
 
                 // Ckear all the timeouts for the messages
                 // todo: put into a separate function
-                this.messageTimeouts.forEach((timeout) => { clearInterval(timeout) });
-                this.messageTimeouts = [];
+                // this.messageTimeouts.forEach((timeout) => { clearInterval(timeout) });
+                // this.messageTimeouts = [];
                 
                 // a little timeout before we proceed
                 setTimeout(resolve, 10000);
@@ -162,6 +162,7 @@ class StartServer {
                 return;
             }
 
+            console.log('Server has started.');
             this.online = true;
         });
     }
@@ -182,9 +183,15 @@ class StartServer {
         }
 
         timePeriods.forEach((time) => {
-            this.messageTimeouts.push(setTimeout(() => {
+            const timeout = this.intervalTime - (time * 60 * 1000);
+             
+            if (!timeout || timeout < 1); {
+                return;
+            }
+
+            setTimeout(() => {
                 ServerConnection.sendGlobalMessage(template.replace('{message}', time));
-            }, this.intervalTime - (time * 60 * 1000)));
+            }, timeout);
         });
     }
 }
