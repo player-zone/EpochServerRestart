@@ -15,7 +15,7 @@ class ServerConnection {
         const maximum = 180; // keep trying for 3 minutes from server start
         let retries = 0;
 
-        return new Promise(resolve => {
+        return new Promise((resolve,reject) => {
             this.login()
                 .then(resolve)
                 .catch(() => {
@@ -24,7 +24,7 @@ class ServerConnection {
                         if (retries === maximum) {
                             reject('Failed to log in to the server');
                         }
-                        retryLogin().then(resolve);
+                        retryLogin().then(resolve).catch(() => {});
                     }, 1000);
                 });
         });

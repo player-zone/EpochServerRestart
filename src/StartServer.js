@@ -58,21 +58,24 @@ class StartServer {
         // start the server!
         this.startServer();
         
-        this.connection = new ServerConnection({
-            address: this.config.HOST,
-            port: this.config.PORT,
-            password: this.config.PASSWORD
-        });
-
-        this.connection.retryLogin()
-            .then(() => {
-                // if successfully logged in, initialise the restart server interval
-                this.initInterval();
-                console.log('Successfully logged into the server.');
-            })
-            .catch(() => {
-                console.log('Failed to login to the server. Server will not restart itself. Please check your configuration.');
-            })
+        // give it 1 minutes to boot and then try to connect to BattlEye RCON
+        setTimeout(() => {
+            this.connection = new ServerConnection({
+                address: this.config.HOST,
+                port: this.config.PORT,
+                password: this.config.PASSWORD
+            });
+    
+            this.connection.retryLogin()
+                .then(() => {
+                    // if successfully logged in, initialise the restart server interval
+                    this.initInterval();
+                    console.log('Successfully logged into the server.');
+                })
+                .catch(() => {
+                    console.log('Failed to login to the server. Server will not restart itself. Please check your configuration.');
+                })
+        }, 60000)
     }
     
     /**
@@ -188,12 +191,12 @@ class StartServer {
         timePeriods.forEach((time) => {
             const timeout = this.intervalTime - (time * 60 * 1000);
              
-            if (!timeout || timeout < 1); {
+            if (!timeout || timeout < 1) {
                 return;
             }
 
             setTimeout(() => {
-                this.connection.sendGlobalMessage('Say -1 ' + template.replace('{message}', time));
+                this.connection.sendGlobalMessage(template.replace('{minutes}', time));
             }, timeout);
         });
     }
