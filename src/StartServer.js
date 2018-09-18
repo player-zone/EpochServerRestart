@@ -13,6 +13,7 @@ class StartServer {
         this.config = {};
 
         // message timeouts
+        // this should be an array of numbers
         this.messageTimeouts = [];
 
         console.log('Server will restart every ' + hours + ' hours');
@@ -137,6 +138,12 @@ class StartServer {
      * @returns {Promise}
      */
     killServer() {
+        // clear all timeouts
+        this.messageTimeouts.forEach((timeout) => {
+            clearTimeout(timeout); 
+        });
+        this.messageTimeouts = [];
+
         return new Promise((resolve, reject) => {
             exec(`taskkill /im ${this.config.PROCESS_NAME || 'arma2oaserver.exe'} /f`, (error) => {
                 if (error) {
@@ -195,9 +202,9 @@ class StartServer {
                 return;
             }
 
-            setTimeout(() => {
+            this.messageTimeouts.push(setTimeout(() => {
                 this.connection.sendGlobalMessage(template.replace('{minutes}', time));
-            }, timeout);
+            }, timeout));
         });
     }
 }

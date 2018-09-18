@@ -1,12 +1,13 @@
 const readline = require('readline');
 const StartServer = require('./src/StartServer');
+const CommandService = require('./src/CommandService');
+
+global.services = {};
 
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
-
-let serverService = null;
 
 function validateTimer(time) {
     if (isNaN(time)) 
@@ -25,13 +26,13 @@ rl.question('How often would you like the server to restart (in hours)? ', (answ
         return;
     }
 
-    serverService = new StartServer(answer);
+    global.services.StartServer = new StartServer(answer);
+    global.services.CommandService = new CommandService();
 
-    console.log('\nOther Commands:\n  1. !restart - restarts the server\n  2. !shutdown - shuts the server down');
+    global.services.CommandService.availableCommandsInformation();
 });
 
-// todo: Handle the above commands
-rl.on('line', () => {
-    console.log('Commands are not supported yet.');
+rl.on('line', (line) => {
+    global.services.CommandService.execute(line);
 });
 

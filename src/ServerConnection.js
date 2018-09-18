@@ -49,12 +49,22 @@ class ServerConnection {
             return;
         }
 
-        this.connection.globalMessage(message, (error) => {
-            if (error) {
+        // it won't let us send the message unless the user is logged int
+        this.login()
+            .then(() => {
+                setTimeout(() => {
+                    this.connection.globalMessage(message, (error) => {
+                        if (error) {
+                            console.log("Failed to send a message to the server");
+                            return;
+                        }
+                    });
+                }, 200);
+            })
+            .catch(() => {
                 console.log("Failed to send a message to the server");
-                return;
-            }
-        });
+            });
+
     }
 }
 
