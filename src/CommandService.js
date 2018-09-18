@@ -22,7 +22,7 @@ class CommandService {
             return `  ${i+1}. ${c.command} - ${c.description}`;
         }).join('\n');
 
-        console.log('Available commands:\n' + commandInformation);
+        console.log('Available commands:\n' + commandInformation + '\n\n');
     }
 
     execute(line) {

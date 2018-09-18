@@ -10,7 +10,8 @@
   "author": "Wiktor Zawierucha",
   "license": "ISC",
   "devDependencies": {
-    "arma-rcon": "^1.0.1"
+    "arma-rcon": "^1.0.1",
+    "simple-node-logger": "^0.93.40"
   },
   "dependencies": {
     "pkg": "^4.3.4"

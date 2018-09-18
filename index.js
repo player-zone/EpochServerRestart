@@ -2,6 +2,8 @@ const readline = require('readline');
 const StartServer = require('./src/StartServer');
 const CommandService = require('./src/CommandService');
 
+const log = require('simple-node-logger').createSimpleLogger('logs.log');
+
 global.services = {};
 
 const rl = readline.createInterface({
