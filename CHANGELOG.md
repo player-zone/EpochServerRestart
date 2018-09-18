@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+Added
+* Commands support
+* Logging to a file
 
 ## 0.0.1 - 15.09.2018
 Added
