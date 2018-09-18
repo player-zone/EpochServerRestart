@@ -32,10 +32,6 @@ function validateTimer(time) {
 }
 
 rl.question('How often would you like the server to restart (in hours)? ', (answer) => {
-    if (answer == 'dude') {
-        throw new Error('Lol');
-    }
-
     if (isNaN(answer)) {
         console.log('Not a number! Exiting...'.error);
         rl.close();
