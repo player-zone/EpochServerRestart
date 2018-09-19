@@ -24,7 +24,7 @@ class ServerConnection {
                         if (retries === maximum) {
                             reject('Failed to log in to the server');
                         }
-                        retryLogin().then(resolve).catch(() => {});
+                        this.retryLogin().then(resolve).catch(() => {});
                     }, 1000);
                 });
         });
