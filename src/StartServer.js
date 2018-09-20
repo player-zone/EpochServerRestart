@@ -28,7 +28,7 @@ class StartServer {
     
     // initialise the interval
     initInterval() {
-        this.interval = setInterval(this.bootServer.bind(this), this.intervalTime);
+        this.interval = setTimeout(this.bootServer.bind(this), this.intervalTime);
         this.initRestartMessages();
     }
 
@@ -194,6 +194,13 @@ class StartServer {
                 timePeriods = parsed;
             }
         }
+
+        // setup a timeout for login, in case the BattlEye session timed out
+        // it will be executed 1 minute before the first time period
+        // if it fals, we don't lose anything anyway.
+        const loginTimeout = setTimeout(() => {
+            this.connection.login();
+        }, this.intervalTime - ((timePeriods[0] + 1) * 60 * 1000));
 
         timePeriods.forEach((time) => {
             const timeout = this.intervalTime - (time * 60 * 1000);

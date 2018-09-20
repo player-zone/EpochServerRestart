@@ -18,11 +18,11 @@ class ServerConnection {
         return new Promise((resolve,reject) => {
             this.login()
                 .then(resolve)
-                .catch(() => {
+                .catch((error) => {
                     setTimeout(() => {
                         retries++;
                         if (retries === maximum) {
-                            reject('Failed to log in to the server');
+                            reject('Failed to log in to the server. ' + error);
                         }
                         this.retryLogin().then(resolve).catch(() => {});
                     }, 1000);
@@ -34,7 +34,7 @@ class ServerConnection {
         return new Promise((resolve, reject) => {
             this.connection.login(this.rconPassword, (error, loggedIn) => {
                 if (error || !loggedIn) {
-                    reject(false);
+                    reject(error);
                     return;
                 }
 
@@ -49,22 +49,12 @@ class ServerConnection {
             return;
         }
 
-        // it won't let us send the message unless the user is logged int
-        this.login()
-            .then(() => {
-                setTimeout(() => {
-                    this.connection.globalMessage(message, (error) => {
-                        if (error) {
-                            console.log("Failed to send a message to the server");
-                            return;
-                        }
-                    });
-                }, 200);
-            })
-            .catch(() => {
-                console.log("Failed to send a message to the server");
-            });
-
+        this.connection.globalMessage(message, (error) => {
+            if (error) {
+                log.error('Unable to send a global message. ' + error)
+                return;
+            }
+        });
     }
 }
 
