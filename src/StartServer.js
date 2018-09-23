@@ -3,6 +3,8 @@ const { exec } = require('child_process');
 
 const ServerConnection = require('./ServerConnection');
 
+const scripts = require('./scripts');
+
 class StartServer {
     constructor(hours = 3) {
         // store the amount of hours to restart
@@ -86,8 +88,20 @@ class StartServer {
     preBootScripts() {
         console.log('Preparing to start the server...');
 
-        return new Promise((resolve, reject) => {
-            // any pre-boot scripts to run? Add them here
+        return new Promise(async (resolve, reject) => {
+            // runs scripts from ./scripts/index.js directory
+            await Promise.all(scripts.map(async script => {
+                // very bad way of checking if the function returns a promise
+                if (script.toString().indexOf('return new Promise') !== -1) {
+                    await script();
+                    return;
+                }
+
+                // if the script doesnt return a promise, just execute it
+                script();
+            }));
+
+            console.log('Finished loading scripts.');
             resolve();
         });
     }
